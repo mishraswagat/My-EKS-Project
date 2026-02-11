@@ -151,6 +151,7 @@ Check status:
 ```bash
 eksctl get cluster
 eksctl get nodegroup --cluster=my-first-eks
+Note: Add inboud rule for the cluster's security group so that you can access the services.
 ```
 
 ---
