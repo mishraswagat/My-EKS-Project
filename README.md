@@ -202,10 +202,10 @@ k8s/
 Example deployments include:
 
 * `nginx-np.yaml`
-* `prometheus.yaml`
-* `grafana.yaml`
-* `jenkins.yaml`
-* `wildfly.yaml`
+* `prometheus-np.yaml`
+* `grafana-np.yaml`
+* `jenkins-np.yaml`
+* `wildfly-np.yaml`
 
 ---
 
@@ -282,10 +282,10 @@ Common causes:
 ├── cluster.yaml
 └── k8s/
     ├── nginx-np.yaml
-    ├── prometheus.yaml
-    ├── grafana.yaml
-    ├── jenkins.yaml
-    └── wildfly.yaml
+    ├── prometheus-np.yaml
+    ├── grafana-np.yaml
+    ├── jenkins-np.yaml
+    └── wildfly-np.yaml
 ```
 
 ---
