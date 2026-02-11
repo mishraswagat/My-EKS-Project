@@ -228,23 +228,3 @@ GitHub Repo
 → Actions tab
 → Deploy YAML to EKS
 ```
-
----
-
-# ⚠️ Security Best Practices
-
-* Never commit kubeconfig to repo
-* Use minimal IAM permissions
-* Rotate access keys regularly
-* Consider switching to OIDC authentication later
-
----
-## 🎉 Summary
-
-You now have CI/CD deployment for Kubernetes manifests:
-
-* Automated
-* Secure
-* Beginner-friendly
-* Production-style workflow foundation
-
