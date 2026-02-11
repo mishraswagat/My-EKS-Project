@@ -1,0 +1,29 @@
+name: Deploy YAML to EKS
+
+on:
+  push:
+    paths:
+      - 'k8s/*.yaml'
+      - 'k8s/*.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $HOME/.kube/config
+
+      - name: Deploy changed files only
+        run: |
+          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep k8s/ || true)
+          for f in $files; do
+            echo "Applying $f"
+            kubectl apply -f $f
+          done
+
