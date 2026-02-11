@@ -3,27 +3,35 @@ name: Deploy YAML to EKS
 on:
   push:
     paths:
-      - 'k8s/*.yaml'
-      - 'k8s/*.yml'
+      - 'k8s/**.yaml'
+      - 'k8s/**.yml'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Setup kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > $HOME/.kube/config
+    - name: Configure AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy changed files only
-        run: |
-          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep k8s/ || true)
-          for f in $files; do
-            echo "Applying $f"
-            kubectl apply -f $f
-          done
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig \
+          --region ${{ secrets.AWS_REGION }} \
+          --name ${{ secrets.CLUSTER_NAME }}
+
+    - name: Deploy changed YAMLs
+      run: |
+        CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^k8s/.*\.ya\?ml$' || true)
+
+        for file in $CHANGED; do
+          echo "Applying $file"
+          kubectl apply -f $file
+        done
 
