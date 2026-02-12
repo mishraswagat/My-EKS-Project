@@ -22,12 +22,40 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
+    # Install eksctl
+    - name: Install eksctl
+      run: |
+        curl --silent --location \
+        "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" \
+        | tar xz
+        sudo mv eksctl /usr/local/bin
+
+    # Check cluster existence
+    - name: Check if cluster exists
+      id: check_cluster
+      run: |
+        if eksctl get cluster \
+          --name ${{ secrets.CLUSTER_NAME }} \
+          --region ${{ secrets.AWS_REGION }}; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    # Create cluster if missing
+    - name: Create cluster if missing
+      if: steps.check_cluster.outputs.exists == 'false'
+      run: |
+        eksctl create cluster -f cluster.yaml --wait
+
+    # Configure kubectl access
     - name: Update kubeconfig
       run: |
         aws eks update-kubeconfig \
           --region ${{ secrets.AWS_REGION }} \
           --name ${{ secrets.CLUSTER_NAME }}
 
+    # Deploy only changed manifests
     - name: Deploy changed YAMLs
       run: |
         CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^k8s/.*\.ya\?ml$' || true)
@@ -36,4 +64,3 @@ jobs:
           echo "Applying $file"
           kubectl apply -f $file
         done
-
