@@ -296,6 +296,9 @@ Delete cluster when done:
 
 ```bash
 eksctl delete cluster --name my-first-eks --region us-east-2
+OR
+eksctl delete nodegroup --cluster <cluster-name> --all
+# This helps deleting the managed nodegroups along with cluster cause if there is already managed nodegroup inside cluster then we can't delete it.
 ```
 
 ---
